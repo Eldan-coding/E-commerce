@@ -1,0 +1,20 @@
+[
+	{
+		"id": "1",
+		"timestamp": "4/10/2021 19:16:19",
+		"nombre": "Teclado",
+		"descripcion": "Teclado de titanio",
+		"foto": "https://cdn3.iconfinder.com/data/icons/delta/256/Keyboard.png",
+		"precio": "200",
+		"stock": "10"
+	},
+	{
+		"id": 2,
+		"timestamp": "4/10/2021 19:54:10",
+		"nombre": "mouse",
+		"descripcion": "El mouse",
+		"foto": "https://cdn0.iconfinder.com/data/icons/icons-unleashed-vol1/256/-mouse.png",
+		"precio": "450",
+		"stock": "100"
+	}
+]
