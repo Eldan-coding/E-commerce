@@ -1,5 +1,7 @@
 import express  from "express";
 import fs from "file-system";
+import Carrito from './Clases/carrito.js'
+import Producto from './Clases/producto.js'
 
 const app= express();
 const PORT= 8080;
@@ -19,44 +21,6 @@ let productos=JSON.parse(fs.readFileSync('public/productos.txt',"utf-8"));
 let carrito=JSON.parse(fs.readFileSync('public/carrito.txt',"utf-8"));
 if(productos.length>0){
     id=productos[productos.length-1].id;
-}
-
-class Producto{
-    constructor(id,timestamp,nombre,descripcion,foto,precio,stock){
-        this.id=id;
-        this.timestamp=timestamp;
-        this.nombre=nombre;
-        this.descripcion=descripcion;
-        this.foto=foto;
-        this.precio=precio;
-        this.stock=stock;
-    }
-
-    getObject(){
-        return {
-            id:this.id,
-            timestamp:this.timestamp,
-            nombre:this.nombre,
-            descripcion:this.descripcion,
-            foto:this.foto,
-            precio:this.precio,
-            stock:this.stock
-        }
-    }
-}
-
-class Carrito{
-    constructor(timestamp,producto){
-        this.timestamp=timestamp;
-        this.producto=producto;
-    }
-
-    getObject(){
-        return {
-            timestamp:this.timestamp,
-            producto:this.producto,
-        }
-    }
 }
 
 const getID=()=>{
@@ -92,20 +56,27 @@ routerProductos.get('/listar',(req,res)=>{
     if(productos.length > 0){
         res.json(productos);
     }else{
-        res.json({error: 'no hay productos cargados'})
+        res.status(404).send({error: 'no hay productos cargados'})
     }
 });
 
 routerProductos.get('/listar/:id',(req,res)=>{
     let params = req.params;
-    let resultado={error: 'producto no encontrado'};
+    let resultado;
+    let sw=0;
     for (let index = 0; index < productos.length; index++) {
         if(productos[index].id==params.id){
             resultado=productos[index];
+            sw=1;
         }
     }
 
-    res.json(resultado)
+    if (sw==1){
+        res.json(resultado)
+    }else{
+        res.status(404).send({error: 'producto no encontrado'})
+    }
+
 });
 
 routerProductos.post('/agregar',(req,res)=>{
@@ -114,12 +85,11 @@ routerProductos.post('/agregar',(req,res)=>{
         console.log(body)
         const datos=Object.values(body);
 
-
         let product=new Producto(getID(),GetCurrentTime(),datos[0],datos[1],datos[2],datos[3],datos[4]);
         addProduct(product.getObject());
         res.json(product.getObject())
     }else{
-        res.json({
+        res.status(401).send({
             error: -1,
             descripcion: "ruta '/agregar' metodo POST no autorizada "
         })
@@ -131,20 +101,26 @@ routerProductos.put('/actualizar/:id',(req,res)=>{
         let params = req.params;
         let body = req.body;
         const datos=Object.values(body);
-
-        let resultado={error: 'producto no actualizado: no se encontro'};
+        let resultado;
+        let sw=0;
         for (let index = 0; index < productos.length; index++) {
             if(productos[index].id==params.id){
+                sw=1;
                 let product=new Producto(params.id,GetCurrentTime(),datos[0],datos[1],datos[2],datos[3],datos[4]);
                 productos[index]=product.getObject();
                 resultado=product.getObject();
             }
         }
         GuardarProductosFile();
+        
 
-        res.json(resultado)
+        if (sw==1){
+            res.json(resultado)
+        }else{
+            res.status(404).send({error: 'producto no actualizado: no se encontro'})
+        }
     }else{
-        res.json({
+        res.status(401).send({
             error: -1,
             descripcion: "ruta '/actualizar/:id' metodo PUT no autorizada "
         })
@@ -154,11 +130,13 @@ routerProductos.put('/actualizar/:id',(req,res)=>{
 routerProductos.delete('/borrar/:id',(req,res)=>{
     if(administrador){
         let params = req.params;
+        let resultado;
+        let sw=0;
 
         let arrayAux=[];
-        let resultado={error: 'producto no eliminado: no se encontro'};
         for (let index = 0; index < productos.length; index++) {
             if(productos[index].id==params.id){
+                sw=1;
                 resultado=productos[index];
             }else{
                 arrayAux.push(productos[index]);
@@ -167,9 +145,13 @@ routerProductos.delete('/borrar/:id',(req,res)=>{
         productos=arrayAux;
         GuardarProductosFile();
 
-        res.json(resultado)
+        if (sw==1){
+            res.json(resultado)
+        }else{
+            res.status(404).send({error: 'producto no eliminado: no se encontro'})
+        }
     }else{
-        res.json({
+        res.status(401).send({
             error: -1,
             descripcion: "ruta '/borrar/:id' metodo DELETE no autorizada "
         })
@@ -178,10 +160,10 @@ routerProductos.delete('/borrar/:id',(req,res)=>{
 
 /* Router Carrito */
 routerCarrito.get('/listar',(req,res)=>{
-    if(productos.length > 0){
-        res.json(productos);
+    if(carrito.length > 0){
+        res.json(carrito);
     }else{
-        res.json({error: 'no hay productos en el carrito'})
+        res.status(404).send({error: 'no hay productos en el carrito'})
     }
 });
 
@@ -194,17 +176,19 @@ routerCarrito.post('/agregar/:id_producto',(req,res)=>{
             addCart(cart.getObject());
             res.json(cart.getObject())
         }else{
-            res.json({error: 'Producto no encontrado'})
+            res.status(404).send({error: 'Producto no encontrado'})
         }
 });
 
 routerCarrito.delete('/borrar/:id',(req,res)=>{
         let params = req.params;
+        let resultado;
+        let sw=0;
 
         let arrayAux=[];
-        let resultado={error: 'producto no eliminado: no se encontro'};
         for (let index = 0; index < carrito.length; index++) {
             if(carrito[index].producto.id==params.id){
+                sw=1;
                 resultado=carrito[index];
             }else{
                 arrayAux.push(carrito[index]);
@@ -213,5 +197,9 @@ routerCarrito.delete('/borrar/:id',(req,res)=>{
         carrito=arrayAux;
         GuardarCarritoFile();
 
-        res.json(resultado)
+        if (sw==1){
+            res.json(resultado)
+        }else{
+            res.status(404).send({error: 'item no eliminado: no se encontro en el carrito'})
+        }
 });

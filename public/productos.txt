@@ -16,5 +16,14 @@
 		"foto": "https://cdn0.iconfinder.com/data/icons/icons-unleashed-vol1/256/-mouse.png",
 		"precio": "450",
 		"stock": "100"
+	},
+	{
+		"id": 3,
+		"timestamp": "14/10/2021 15:40:59",
+		"nombre": "Telefono",
+		"descripcion": "Samsung",
+		"foto": "https://cdn3.iconfinder.com/data/icons/flat-set-1/64/flat_set_1-25-256.png",
+		"precio": "100",
+		"stock": "10"
 	}
 ]
