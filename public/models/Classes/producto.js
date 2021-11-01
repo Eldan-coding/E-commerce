@@ -1,6 +1,5 @@
 class Producto{
-    constructor(id,timestamp,nombre,descripcion,foto,precio,stock){
-        this.id=id;
+    constructor(timestamp,nombre,descripcion,foto,precio,stock){
         this.timestamp=timestamp;
         this.nombre=nombre;
         this.descripcion=descripcion;
@@ -11,7 +10,6 @@ class Producto{
 
     getObject(){
         return {
-            id:this.id,
             timestamp:this.timestamp,
             nombre:this.nombre,
             descripcion:this.descripcion,
